@@ -5,7 +5,7 @@ exports.sessions = {
 }
 
 exports.login = async function(req, login, pass) {
-	var user = await req.db.one('SELECT * FROM users WHERE login = $1', login)
+	var user = await req.db.oneOrNone('SELECT * FROM users WHERE login = $1', login)
 
 	if (user && (user.pass == md5(pass))) {
 		var secret = 'secret';
@@ -54,11 +54,10 @@ exports.can = function(user) {
 
 	let res = {}
 
-	res.view_users = user && user.id_role === 1
-    res.view_payments = user && user.id_role <= 2
-    res.view_orders = user && user.id_role <= 3
-    res.view_clients = user && user.id_role <= 2
-
+	res.view_users = Boolean(user && user.id_role === 1)
+    res.view_payments = Boolean(user && user.id_role <= 2)
+    res.view_orders = Boolean(user && user.id_role <= 3)
+    res.view_clients = Boolean(user && user.id_role <= 2)
     return res
 }
 
