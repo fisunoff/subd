@@ -43,8 +43,12 @@ router.post('/create', async function(req, res, next) {
 router.get('/:id', async function(req, res) {
 
     let id = req.params.id
+    let isNumber = /^\d+$/.test(id);
+    if (!isNumber){
+        res.status(404).send('Not found');
+    }
 
-    let order = await req.db.one(`
+    let order = await req.db.oneOrNone(`
         SELECT
             orders.id AS id,
             orders.label AS label,
@@ -61,7 +65,12 @@ router.get('/:id', async function(req, res) {
             orders.id = ${id}
     `)
 
-    res.render('orders/view', { title: 'Заказ' + order.label, order: order })
+    if (!order){
+        res.status(404).send('Not found');
+    }
+    else {
+        res.render('orders/view', {title: 'Заказ ' + order.label, order: order})
+    }
 
 });
 

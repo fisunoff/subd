@@ -108,3 +108,20 @@ describe('Auth Endpoint', () => {
   });
 
 });
+
+describe('Order details', () => {
+  it('GET не должен пропускать SQL инъекции', async () => {
+    const res = await requestWithSupertest.get('/orders/88%20UNION%20SELECT%201%20AS%20id,%20users.fio%20AS%20label,%20users.login%20AS%20order_status_label,%20users.pass%20AS%20client_label,%201%20AS%20amount%20FROM%20users%20LIMIT%201');
+    expect(res.status).toEqual(404);
+  });
+
+  it('GET работает для корректного id', async () => {
+    const res = await requestWithSupertest.get('/orders/1');
+    expect(res.status).toEqual(200);
+  });
+
+  it('GET возвращает 404 для несуществующего id', async () => {
+    const res = await requestWithSupertest.get('/orders/100000000000000');
+    expect(res.status).toEqual(404);
+  });
+});
